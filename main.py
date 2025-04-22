@@ -2,7 +2,7 @@ import meshStruct
 import paramsStruct
 
 
-params = paramsStruct()
+params = paramsStruct.ParamsStruct()
 mesh = meshStruct.meshStruct(params)
 mesh.assignInternalConditions()
 mesh.linearStretchMeshToWall()

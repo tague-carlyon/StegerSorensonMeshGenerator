@@ -1,6 +1,6 @@
 # Parameters structure
 # Edit values here
-class Params:
+class ParamsStruct:
     def __init__(self):
         ## GEOMETRY AND BOUNDARY CONDITIONS
         # freestream Mach number
@@ -46,7 +46,7 @@ class Params:
         ## RELAXATION PARAMETERS
         # relaxation method
         # oprions are 'PJ', 'GS', 'SLOR', 'ADI'
-        self.method = 'SLOR'
+        self.method = 'PJ'
         # SLOR relaxation parameter
         self.wSLOR = 1.89
         # maximum number of iterations

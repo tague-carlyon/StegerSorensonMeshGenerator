@@ -153,12 +153,8 @@ class meshStruct:
             Res = np.linalg.norm(resx + resy, ord=2)
             print("Residual for meshGen: ", Res)
 
-            match self.params.gridGenType:
-                case 'Elliptic':
-                    # calculate the relaxation factors
-                    dx = -resx/(-2 * alpha - 2 * gamma)
-                    dy = -resy/(-2 * alpha - 2 * gamma)
-                case 'TTM':
+            match self.params.method:
+                case 'PJ':
                     # calculate the relaxation factors
                     dx = -resx/(-2 * alpha - 2 * gamma)
                     dy = -resy/(-2 * alpha - 2 * gamma)

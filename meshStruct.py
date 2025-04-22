@@ -188,14 +188,20 @@ class meshStruct:
         
         gamma = x_xi**2 + y_xi**2
 
-        if self.params.gridGenType == 'Elliptic':
-            resx = (alpha * x_xixi + beta * x_xieta + gamma * x_ee)
-            resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
+        match self.params.gridGenType:
+            case 'Elliptic':
+                resx = (alpha * x_xixi + beta * x_xieta + gamma * x_ee)
+                resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
-        if self.params.gridGenType == 'TTM':
-            # calculate the relaxation factors
-            resx = (alpha * (x_xixi + phi * x_xi) + 2 * beta * x_xieta + gamma * (x_ee + psi * x_eta))
-            resy = (alpha * (y_xixi + phi * x_xi) + 2 * beta * y_xieta + gamma * (y_ee + psi * y_eta))
+            case 'steger-sorenson':
+                # calculate the residuals
+                resx = (alpha * x_xixi + beta * x_xieta + gamma * x_ee) * 
+                resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
+
+            case 'TTM':
+                # calculate the residuals
+                resx = (alpha * (x_xixi + phi * x_xi) + 2 * beta * x_xieta + gamma * (x_ee + psi * x_eta))
+                resy = (alpha * (y_xixi + phi * x_xi) + 2 * beta * y_xieta + gamma * (y_ee + psi * y_eta))
         
 
         return resx, resy, alpha, beta, gamma

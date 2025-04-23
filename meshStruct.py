@@ -218,9 +218,14 @@ class meshStruct:
                 resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
             case 'Steger-Sorenson':
+                J = x_xi * y_eta - x_eta * y_xi
+                Rx = -J ** 2 * (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee)
+                Ry = -J ** 2 * (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee)
+                P0 = J * (y_eta * Rx - x_eta * Ry)
+                Q0 = J * (y_xi * Rx + x_xi * Ry)
                 # calculate the residuals
-                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) * (x_xi * y_eta - x_eta * y_xi) ** 2
-                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) * (x_xi * y_eta - x_eta * y_xi) ** 2
+                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * x_xi + Q0 * y_xi)
+                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * y_xi + Q0 * x_xi)
 
             case 'TTM':
                 # calculate the residuals

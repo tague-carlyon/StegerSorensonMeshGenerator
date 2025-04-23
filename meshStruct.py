@@ -106,15 +106,16 @@ class meshStruct:
         psi = np.zeros((self.jMax-2, self.kMax-2))
         phi = np.zeros((self.jMax-2, self.kMax-2))
 
-        if self.params.gridGenType == 'TTM':
+        # calculate the mesh metrics
+        x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
+        x_xi = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
+        x_ee = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])    
+        
+        y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
+        y_xi = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
+        y_ee = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
 
-            x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
-            x_xi = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
-            x_ee = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])    
-            
-            y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
-            y_xi = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
-            y_ee = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
+        if self.params.gridGenType == 'TTM':
             
             for j in range(0, self.jMax - 2):
                 if abs(y_eta[j, 0]) > abs(x_eta[j, 0]):
@@ -146,14 +147,6 @@ class meshStruct:
 
         while Res > self.params.convCriteria:
             if self.params.gridGenType == 'Steger-Sorenson':
-                # calculate the mesh metrics
-                x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
-                x_xi = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
-                x_ee = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])    
-                
-                y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
-                y_xi = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
-                y_ee = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
                 
                 for j in range(0, self.jMax - 2):
                     if abs(y_eta[j, 0]) > abs(x_eta[j, 0]):
@@ -224,7 +217,7 @@ class meshStruct:
                 resx = (alpha * x_xixi + beta * x_xieta + gamma * x_ee)
                 resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
-            case 'steger-sorenson':
+            case 'Steger-Sorenson':
                 # calculate the residuals
                 resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) * (x_xi * y_eta - x_eta * y_xi) ** 2
                 resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) * (x_xi * y_eta - x_eta * y_xi) ** 2

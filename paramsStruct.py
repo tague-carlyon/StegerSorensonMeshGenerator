@@ -41,8 +41,8 @@ class ParamsStruct:
         self.gridType = 'O'
         # grid generation type 
         # options are 'TTM' (Thompson, Thames, Mastin), 'LSD' (linear stretching), 'UDM' (uniform)
-        # 'steger-sorenson'
-        self.gridGenType = 'Elliptic'
+        # 'Steger-Sorenson'
+        self.gridGenType = 'Steger-Sorenson'
 
         ## RELAXATION PARAMETERS
         # relaxation method

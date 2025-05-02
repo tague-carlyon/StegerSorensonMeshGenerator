@@ -203,13 +203,13 @@ class meshStruct:
                 expa = np.exp(-self.etas)
                 expb = np.exp(-self.xis)
                 J = x_xi * y_eta - x_eta * y_xi
-                Rx = -J ** 2 * (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee)
-                Ry = -J ** 2 * (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee)
+                Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
+                Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
                 P0 = J[:, 0] * (y_eta[:, 0] * Rx[:, 0] - x_eta[:, 0] * Ry[:, 0])
                 Q0 = J[:, 0] * (y_xi[:, 0] * Rx[:, 0] + x_xi[:, 0] * Ry[:, 0])
                 # calculate the residuals
-                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * x_xi + Q0 * y_xi)
-                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * y_xi + Q0 * x_xi)
+                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * expa * x_xi + Q0 * expb * y_xi)
+                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * expa * y_xi + Q0 * expb * x_xi)
 
             case 'TTM':
                 # calculate the residuals

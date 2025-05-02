@@ -175,13 +175,9 @@ class meshStruct:
                 Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
 
                 for i in range(0, self.kMax-2):
-                    phi[i, :] = P0[i] * expa[:, i]
-                    psi[i, :] = Q0[i] * expb[:, i]
+                    phi[i, :] = P0[i] * expa[i, :]
+                    psi[i, :] = Q0[i] * expb[i, :]
 
-                print("Shape of P0:", P0.shape)
-                print("Shape of Q0:", Q0.shape)
-                print("Shape of expa:", expa.shape)
-                print("Shape of expb:", expb.shape)
                 # calculate the residuals
                 resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (phi * x_xi + psi * y_xi)
                 resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (phi * y_xi + psi * x_xi)        

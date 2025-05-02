@@ -34,8 +34,8 @@ class meshStruct:
         self.etas = np.zeros((self.jMax, self.kMax))
         self.xis = np.zeros((self.jMax, self.kMax))
         for i in range(self.jMax):
-            print(np.linspace(0, self.kMax-1, self.kMax))
             self.etas[i, :] = np.linspace(0, self.kMax-1, self.kMax)
+        for i in range(self.kMax):
             self.xis[:, i] = np.linspace(0, self.jMax-1, self.jMax)
         
     def assignInternalConditions(self):
@@ -208,8 +208,8 @@ class meshStruct:
 
                 Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
                 Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
-                P0 = J[:, 0] * (y_eta[:, 0] * Rx[:, 0] - x_eta[:, 0] * Ry[:, 0])
-                Q0 = J[:, 0] * (y_xi[:, 0] * Rx[:, 0] + x_xi[:, 0] * Ry[:, 0])
+                P0 = J[:, 0] * (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry)
+                Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
                 # calculate the residuals
                 resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * expa * x_xi + Q0 * expb * y_xi)
                 resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * expa * y_xi + Q0 * expb * x_xi)

@@ -34,8 +34,9 @@ class meshStruct:
         self.etas = np.zeros((self.jMax, self.kMax))
         self.xis = np.zeros((self.jMax, self.kMax))
         for i in range(self.jMax):
-            self.etas[i, :] = np.linspace(0, 1, self.kMax-1)
-            self.xis[:, i] = np.linspace(0, 1, self.jMax-1)
+            print(np.linspace(0, self.kMax-1, self.kMax))
+            self.etas[i, :] = np.linspace(0, self.kMax-1, self.kMax)
+            self.xis[:, i] = np.linspace(0, self.jMax-1, self.jMax)
         
     def assignInternalConditions(self):
         """
@@ -203,6 +204,8 @@ class meshStruct:
                 expa = np.exp(-self.etas)
                 expb = np.exp(-self.xis)
                 J = x_xi * y_eta - x_eta * y_xi
+                s_eta = np.sqrt(x_eta**2 + y_eta**2)
+
                 Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
                 Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
                 P0 = J[:, 0] * (y_eta[:, 0] * Rx[:, 0] - x_eta[:, 0] * Ry[:, 0])

@@ -31,6 +31,11 @@ class meshStruct:
         self.dxdy = params.dxdy
         self.ds = 0.004
         self.gridType = params.gridType
+        self.etas = np.zeros((self.jMax, self.kMax))
+        self.xis = np.zeros((self.jMax, self.kMax))
+        for i in range(self.jMax):
+            self.etas[i, :] = np.linspace(0, 1, self.kMax-1)
+            self.xis[:, i] = np.linspace(0, 1, self.jMax-1)
         
     def assignInternalConditions(self):
         """
@@ -143,30 +148,7 @@ class meshStruct:
             # Interpolate phi to its boundary
             phi[1:-1, :] = (phi[:-2, :] + phi[2:, :]) / 2
 
-            
-
         while Res > self.params.convCriteria:
-            if self.params.gridGenType == 'Steger-Sorenson':
-                
-                for j in range(0, self.jMax - 2):
-                    if abs(y_eta[j, 0]) > abs(x_eta[j, 0]):
-                        psi[j, 0] = -y_ee[j, 0] / y_eta[j, 0]
-                    else:
-                        psi[j, 0] = -x_ee[j, 0] / x_eta[j, 0]
-                    if abs(y_eta[j, -1]) > abs(x_eta[j, -1]):
-                        psi[j, -1] = -y_ee[j, -1] / y_eta[j, -1]
-                    else:
-                        psi[j, -1] = -x_ee[j, -1] / x_eta[j, -1]
-                    
-                for k in range(0, self.kMax - 2):
-                    if abs(y_xi[0, k]) > abs(x_xi[0, k]):
-                        phi[0, k] = -y_xi[0, k] / y_xi[0, k]
-                    else:
-                        phi[0, k] = -x_xi[0, k] / x_xi[0, k]
-                    if abs(y_xi[-1, k]) > abs(x_xi[-1, k]):
-                        phi[-1, k] = -y_xi[-1, k] / y_xi[-1, k]
-                    else:
-                        phi[-1, k] = -x_xi[-1, k] / x_xi[-1, k]
 
             resx, resy, alpha, beta, gamma = self.computeResidual(psi, phi)
             #print(resx)
@@ -208,7 +190,7 @@ class meshStruct:
 
         alpha = x_eta**2 + y_eta**2 
 
-        beta = x_xi* x_eta + y_xi * y_eta
+        beta = x_xi * x_eta + y_xi * y_eta
         
         gamma = x_xi**2 + y_xi**2
 
@@ -218,11 +200,13 @@ class meshStruct:
                 resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
             case 'Steger-Sorenson':
+                expa = np.exp(-self.etas)
+                expb = np.exp(-self.xis)
                 J = x_xi * y_eta - x_eta * y_xi
                 Rx = -J ** 2 * (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee)
                 Ry = -J ** 2 * (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee)
-                P0 = J * (y_eta * Rx - x_eta * Ry)
-                Q0 = J * (y_xi * Rx + x_xi * Ry)
+                P0 = J[:, 0] * (y_eta[:, 0] * Rx[:, 0] - x_eta[:, 0] * Ry[:, 0])
+                Q0 = J[:, 0] * (y_xi[:, 0] * Rx[:, 0] + x_xi[:, 0] * Ry[:, 0])
                 # calculate the residuals
                 resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * x_xi + Q0 * y_xi)
                 resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * y_xi + Q0 * x_xi)

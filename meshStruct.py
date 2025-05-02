@@ -109,50 +109,10 @@ class meshStruct:
 
         dx = np.zeros((self.jMax-2, self.kMax-2))
         dy = np.zeros((self.jMax-2, self.kMax-2))
-        psi = np.zeros((self.jMax-2, self.kMax-2))
-        phi = np.zeros((self.jMax-2, self.kMax-2))
-
-        # calculate the mesh metrics
-        x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
-        x_xi = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
-        x_ee = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])    
-        
-        y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
-        y_xi = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
-        y_ee = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
-
-        if self.params.gridGenType == 'TTM':
-            
-            for j in range(0, self.jMax - 2):
-                if abs(y_eta[j, 0]) > abs(x_eta[j, 0]):
-                    psi[j, 0] = -y_ee[j, 0] / y_eta[j, 0]
-                else:
-                    psi[j, 0] = -x_ee[j, 0] / x_eta[j, 0]
-                if abs(y_eta[j, -1]) > abs(x_eta[j, -1]):
-                    psi[j, -1] = -y_ee[j, -1] / y_eta[j, -1]
-                else:
-                    psi[j, -1] = -x_ee[j, -1] / x_eta[j, -1]
-                
-            for k in range(0, self.kMax - 2):
-                if abs(y_xi[0, k]) > abs(x_xi[0, k]):
-                    phi[0, k] = -y_xi[0, k] / y_xi[0, k]
-                else:
-                    phi[0, k] = -x_xi[0, k] / x_xi[0, k]
-                if abs(y_xi[-1, k]) > abs(x_xi[-1, k]):
-                    phi[-1, k] = -y_xi[-1, k] / y_xi[-1, k]
-                else:
-                    phi[-1, k] = -x_xi[-1, k] / x_xi[-1, k]
-
-            # Interpolate psi to its boundary
-            psi[:, 1:-1] = (psi[:, :-2] + psi[:, 2:]) / 2
-
-            # Interpolate phi to its boundary
-            phi[1:-1, :] = (phi[:-2, :] + phi[2:, :]) / 2
 
         while Res > self.params.convCriteria:
 
-            resx, resy, alpha, beta, gamma = self.computeResidual(psi, phi)
-            #print(resx)
+            resx, resy, alpha, beta, gamma = self.computeResidual()
 
             Res = np.linalg.norm(resx + resy, ord=2)
             print("Residual for meshGen: ", Res)
@@ -168,8 +128,11 @@ class meshStruct:
             self.meshYs[1:-1, 1:-1] += dy
 
 
-    def computeResidual(self, psi, phi):
+    def computeResidual(self):
         
+        phi = np.zeros((self.jMax-2, self.kMax-2))
+        psi = np.zeros((self.jMax-2, self.kMax-2))
+
         resx = np.zeros((self.jMax-2, self.kMax-2))
         resy = np.zeros((self.jMax-2, self.kMax-2))
 
@@ -201,8 +164,8 @@ class meshStruct:
                 resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
             case 'Steger-Sorenson':
-                expa = np.exp(-self.etas)
-                expb = np.exp(-self.xis)
+                expa = np.exp(-self.etas[1:-1, 1:-1])
+                expb = np.exp(-self.etas[1:-1, 1:-1])
                 J = x_xi * y_eta - x_eta * y_xi
                 s_eta = np.sqrt(x_eta**2 + y_eta**2)
 
@@ -210,15 +173,18 @@ class meshStruct:
                 Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
                 P0 = J[:, 0] * (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry)
                 Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
-                # calculate the residuals
-                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (P0 * expa * x_xi + Q0 * expb * y_xi)
-                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (P0 * expa * y_xi + Q0 * expb * x_xi)
 
-            case 'TTM':
+                for i in range(0, self.kMax-2):
+                    phi[i, :] = P0[i] * expa[:, i]
+                    psi[i, :] = Q0[i] * expb[:, i]
+
+                print("Shape of P0:", P0.shape)
+                print("Shape of Q0:", Q0.shape)
+                print("Shape of expa:", expa.shape)
+                print("Shape of expb:", expb.shape)
                 # calculate the residuals
-                resx = (alpha * (x_xixi + phi * x_xi) + 2 * beta * x_xieta + gamma * (x_ee + psi * x_eta))
-                resy = (alpha * (y_xixi + phi * x_xi) + 2 * beta * y_xieta + gamma * (y_ee + psi * y_eta))
-        
+                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (phi * x_xi + psi * y_xi)
+                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (phi * y_xi + psi * x_xi)        
 
         return resx, resy, alpha, beta, gamma
 

@@ -136,21 +136,28 @@ class meshStruct:
         resx = np.zeros((self.jMax-2, self.kMax-2))
         resy = np.zeros((self.jMax-2, self.kMax-2))
 
-        x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
         x_xi = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
         x_ee = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])    
         x_xixi = (self.meshXs[1:-1, :-2] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[1:-1, 2:])
-        
+
         x_xieta = ((self.meshXs[2:, 2:] - self.meshXs[2:, :-2]) / 2 - \
                     (self.meshXs[:-2, 2:] - self.meshXs[:-2, :-2]) / 2) / 2
         
-        y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
         y_xi = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
         y_ee = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
         y_xixi = (self.meshYs[1:-1, :-2] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[1:-1, 2:])
 
         y_xieta = ((self.meshYs[2:, 2:] - self.meshYs[2:, :-2]) / 2 - \
                     (self.meshYs[:-2, 2:] - self.meshYs[:-2, :-2]) / 2) / 2
+
+        match self.params.gridGenType:
+            case 'Elliptic':
+                x_eta = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
+                y_eta = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
+            case 'Steger-Sorenson':
+                s_eta = np.sqrt(x_eta**2 + y_eta**2)
+
+
 
         alpha = x_eta**2 + y_eta**2 
 
@@ -167,7 +174,6 @@ class meshStruct:
                 expa = np.exp(-self.etas[1:-1, 1:-1])
                 expb = np.exp(-self.etas[1:-1, 1:-1])
                 J = x_xi * y_eta - x_eta * y_xi
-                s_eta = np.sqrt(x_eta**2 + y_eta**2)
 
                 Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
                 Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])

@@ -143,6 +143,12 @@ class meshStruct:
         resx = np.zeros((self.jMax-2, self.kMax-2))
         resy = np.zeros((self.jMax-2, self.kMax-2))
 
+        x_xi = np.zeros((self.jMax-2, self.kMax-2))
+        y_xi = np.zeros((self.jMax-2, self.kMax-2))
+        
+        x_eta = np.zeros((self.jMax-2, self.kMax-2))
+        y_eta = np.zeros((self.jMax-2, self.kMax-2))
+
         x_xi = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
         x_ee = (self.meshXs[1:-1, :-2] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[1:-1, 2:])    
         x_xixi = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])
@@ -162,8 +168,11 @@ class meshStruct:
                 x_eta = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
                 y_eta = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
             case 'Steger-Sorenson':
-                x_eta = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
-                y_eta = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
+                y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+
+                x_ee[:, 0] = 0.5 * (7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[2:, 2]) - 3 * x_eta[:, 0]
+                y_ee[:, 0] = 0.5 * (7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[2:, 2]) - 3 * y_eta[:, 0]
 
         alpha = x_eta**2 + y_eta**2 
 
@@ -177,15 +186,6 @@ class meshStruct:
                 resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
 
             case 'Steger-Sorenson':
-
-                for xi in range(0, self.kMax-2):
-                    y_xi[xi, 0] = (self.meshYs[xi+1, 0] - self.meshYs[xi-1, 0]) / 2
-                    x_xi[xi, 0] = (self.meshXs[xi+1, 0] - self.meshXs[xi-1, 0]) / 2
-
-                y_xi[:, 0] = self.ds * x_eta[:, 0] / np.sqrt(x_eta[:, 0]**2 + y_eta[:, 0]**2)
-                x_xi[:, 0] = self.ds * y_eta[:, 0] / np.sqrt(x_eta[:, 0]**2 + y_eta[:, 0]**2)
-
-                x_ee[:, 0] = (self.meshXs[:-2, 0] - 2 * self.meshXs[1:-1, 0] + self.meshXs[:-2, 0])
                 
                 expa = np.exp(-self.etas[1:-1, 1:-1])
                 expb = np.exp(-self.etas[1:-1, 1:-1])

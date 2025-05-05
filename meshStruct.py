@@ -185,14 +185,8 @@ class meshStruct:
 
         match self.params.gridGenType:
             case 'Steger-Sorenson':
-                yOnes = np.ones(self.jMax)
-                print("Shape of yOnes:", yOnes.shape)
-                xOnes = np.ones(self.jMax)
-                yOnes[:self.jLE-1] = -1.0
-                xOnes[self.jLE-1:] = -1.0
-
-                y_eta[:, 0] = yOnes * np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
-                x_eta[:, 0] = xOnes * np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
 
                 x_ee[:, 0] = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta[:, 0]
                 y_ee[:, 0] = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta[:, 0]

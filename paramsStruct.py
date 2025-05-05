@@ -1,6 +1,6 @@
 # Parameters structure
 # Edit values here
-class ParamsStruct:
+class paramsStruct:
     def __init__(self):
         ## GEOMETRY AND BOUNDARY CONDITIONS
         # freestream Mach number
@@ -54,3 +54,7 @@ class ParamsStruct:
         self.iterMax = 1000
         # ratio of current to initial residual L2 norm at convergence
         self.convCriteria = 0.001
+    
+    @classmethod
+    def create(cls):
+        return cls()

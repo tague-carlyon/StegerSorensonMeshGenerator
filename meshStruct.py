@@ -240,3 +240,12 @@ class meshStruct:
             ax.plot(self.meshXs[:, y], self.meshYs[:, y])
         ax.set_aspect('equal', 'box')
         plt.show()
+
+    @classmethod
+    def create(cls, params):
+        """
+        Creates an instance of the meshStruct class.
+        returns:
+            meshStruct: An instance of the meshStruct class.
+        """
+        return cls(params)

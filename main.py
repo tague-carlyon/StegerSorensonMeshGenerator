@@ -1,9 +1,8 @@
-import meshStruct
-import paramsStruct
+from meshStruct import meshStruct
+from paramsStruct import paramsStruct
 
-
-params = paramsStruct.ParamsStruct()
-mesh = meshStruct.meshStruct(params)
+params = paramsStruct.create()
+mesh = meshStruct.create(params)
 mesh.assignInternalConditions()
 mesh.linearStretchMeshToWall()
 mesh.plotMesh()

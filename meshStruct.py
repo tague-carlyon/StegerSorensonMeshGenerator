@@ -155,8 +155,8 @@ class meshStruct:
         x_xieta = np.zeros((self.jMax, self.kMax-2))
         y_xieta = np.zeros((self.jMax, self.kMax-2))
 
-        x_xi[1:-1, :] = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
-        x_xi[0, :] = (self.meshXs[1, 1:-1] - self.meshXs[-1, 1:-1]) / 2
+        x_xi[1:-1, :] = (self.meshXs[2:, :] - self.meshXs[:-2, :]) / 2
+        x_xi[0, :] = (self.meshXs[1, :] - self.meshXs[-1, :]) / 2
         x_xi[-1, :] = x_xi[0, :]
 
         

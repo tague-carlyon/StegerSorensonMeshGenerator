@@ -169,8 +169,8 @@ class meshStruct:
         x_eta = (self.meshXs[:, 2:] - self.meshXs[:, :-2]) / 2
         x_ee = (self.meshXs[:, :-2] - 2 * self.meshXs[:, 1:-1] + self.meshXs[:, 2:])    
 
-        y_xi[1:-1, :] = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
-        y_xi[0, :] = (self.meshYs[1, 1:-1] - self.meshYs[-1, 1:-1]) / 2
+        y_xi[1:-1, :] = (self.meshYs[2:, :] - self.meshYs[:-2, :]) / 2
+        y_xi[0, :] = (self.meshYs[1, :] - self.meshYs[-1, :]) / 2
         y_xi[-1, :] = y_xi[0, :]
         
         y_xixi[1:-1, :] = (self.meshYs[:-2, :] - 2 * self.meshYs[1:-1, :] + self.meshYs[2:, :])

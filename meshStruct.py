@@ -116,8 +116,8 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            #if currIter % 1000 == 0:
-            #    self.plotMesh()
+            if currIter % 100 == 0:
+                self.plotMesh()
 
             resx, resy, alpha, beta, gamma = self.computeResidual()
 
@@ -137,42 +137,62 @@ class meshStruct:
 
     def computeResidual(self):
         
-        phi = np.zeros((self.jMax-2, self.kMax-2))
-        psi = np.zeros((self.jMax-2, self.kMax-2))
+        phi = np.zeros((self.jMax, self.kMax-2))
+        psi = np.zeros((self.jMax, self.kMax-2))
 
-        resx = np.zeros((self.jMax-2, self.kMax-2))
-        resy = np.zeros((self.jMax-2, self.kMax-2))
+        resx = np.zeros((self.jMax, self.kMax-2))
+        resy = np.zeros((self.jMax, self.kMax-2))
 
-        x_xi = np.zeros((self.jMax-2, self.kMax-2))
-        y_xi = np.zeros((self.jMax-2, self.kMax-2))
+        x_xi = np.zeros((self.jMax, self.kMax))
+        y_xi = np.zeros((self.jMax, self.kMax))
         
-        x_eta = np.zeros((self.jMax-2, self.kMax-2))
-        y_eta = np.zeros((self.jMax-2, self.kMax-2))
+        x_eta = np.zeros((self.jMax, self.kMax-2))
+        y_eta = np.zeros((self.jMax, self.kMax-2))
 
-        x_xi = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
-        x_ee = (self.meshXs[1:-1, :-2] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[1:-1, 2:])    
-        x_xixi = (self.meshXs[:-2, 1:-1] - 2 * self.meshXs[1:-1, 1:-1] + self.meshXs[2:, 1:-1])
-
-        x_xieta = ((self.meshXs[2:, 2:] - self.meshXs[:-2, 2:]) / 2 - \
-                    (self.meshXs[2:, :-2] - self.meshXs[:-2, :-2]) / 2) / 2
+        x_xixi = np.zeros((self.jMax, self.kMax))
+        y_xixi = np.zeros((self.jMax, self.kMax))
         
-        y_xi = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
-        y_ee = (self.meshYs[1:-1, :-2] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[1:-1, 2:])
-        y_xixi = (self.meshYs[:-2, 1:-1] - 2 * self.meshYs[1:-1, 1:-1] + self.meshYs[2:, 1:-1])
+        x_xieta = np.zeros((self.jMax, self.kMax-2))
+        y_xieta = np.zeros((self.jMax, self.kMax-2))
 
-        y_xieta = ((self.meshYs[2:, 2:] - self.meshYs[2:, :-2]) / 2 - \
-                    (self.meshYs[2:, :-2] - self.meshYs[:-2, :-2]) / 2) / 2
+        x_xi[1:-1, :] = (self.meshXs[2:, 1:-1] - self.meshXs[:-2, 1:-1]) / 2
+        x_xi[0, :] = (self.meshXs[1, 1:-1] - self.meshXs[-1, 1:-1]) / 2
+        x_xi[-1, :] = x_xi[0, :]
+
+        
+        x_xixi[1:-1, :] = (self.meshXs[:-2, :] - 2 * self.meshXs[1:-1, :] + self.meshXs[2:, :])
+        x_xixi[0, :] = (self.meshXs[-1, :] - 2 * self.meshXs[0, :] + self.meshXs[1, :])
+        x_xixi[-1, :] = x_xixi[0, :]
+
+        x_xieta[:, :] = (x_xi[:, 2:] - x_xi[:, :-2]) / 2
+
+        x_eta = (self.meshXs[:, 2:] - self.meshXs[:, :-2]) / 2
+        x_ee = (self.meshXs[:, :-2] - 2 * self.meshXs[:, 1:-1] + self.meshXs[:, 2:])    
+
+        y_xi[1:-1, :] = (self.meshYs[2:, 1:-1] - self.meshYs[:-2, 1:-1]) / 2
+        y_xi[0, :] = (self.meshYs[1, 1:-1] - self.meshYs[-1, 1:-1]) / 2
+        y_xi[-1, :] = y_xi[0, :]
+        
+        y_xixi[1:-1, :] = (self.meshYs[:-2, :] - 2 * self.meshYs[1:-1, :] + self.meshYs[2:, :])
+        y_xixi[0, :] = (self.meshYs[-1, :] - 2 * self.meshYs[0, :] + self.meshYs[1, :])
+        y_xixi[-1, :] = y_xixi[0, :]
+
+        y_xieta[:, :] = (y_xi[:, 2:] - y_xi[:, :-2]) / 2
+
+        y_eta = (self.meshYs[:, 2:] - self.meshYs[:, :-2]) / 2
+        y_ee = (self.meshYs[:, :-2] - 2 * self.meshYs[:, 1:-1] + self.meshYs[:, 2:])    
 
         match self.params.gridGenType:
             case 'Elliptic':
-                x_eta = (self.meshXs[1:-1, 2:] - self.meshXs[1:-1, :-2]) / 2
-                y_eta = (self.meshYs[1:-1, 2:] - self.meshYs[1:-1, :-2]) / 2
+                x_eta = (self.meshXs[:, 2:] - self.meshXs[:, :-2]) / 2
+                y_eta = (self.meshYs[:, 2:] - self.meshYs[:, :-2]) / 2
             case 'Steger-Sorenson':
-                y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
-                x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                #y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                #x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
 
-                x_ee[:, 0] = 0.5 * (7 * self.meshXs[1:-1, 0] + 8 * self.meshXs[1:-1, 1] - self.meshXs[1:-1, 2]) - 3 * x_eta[:, 0]
-                y_ee[:, 0] = 0.5 * (7 * self.meshYs[1:-1, 0] + 8 * self.meshYs[1:-1, 1] - self.meshYs[1:-1, 2]) - 3 * y_eta[:, 0]
+                #x_ee[:, 0] = 0.5 * (7 * self.meshXs[1:-1, 0] + 8 * self.meshXs[1:-1, 1] - self.meshXs[1:-1, 2]) - 3 * x_eta[:, 0]
+                #y_ee[:, 0] = 0.5 * (7 * self.meshYs[1:-1, 0] + 8 * self.meshYs[1:-1, 1] - self.meshYs[1:-1, 2]) - 3 * y_eta[:, 0]
+                True
 
         alpha = x_eta**2 + y_eta**2 
 
@@ -197,13 +217,14 @@ class meshStruct:
                 P0 = J[:, 0] * (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry)
                 Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
 
-                for i in range(0, self.kMax-2):
+                for i in range(0, self.jMax-2):
                     phi[i, :] = P0[i] * expa[i, :]
                     psi[i, :] = Q0[i] * expb[i, :]
 
                 # calculate the residuals
                 resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (phi * x_xi + psi * y_xi)
-                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (phi * y_xi + psi * x_xi)        
+                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (phi * y_xi + psi * x_xi)
+                print("Shape of resx:", resx.shape)
 
         return resx, resy, alpha, beta, gamma
 

@@ -116,7 +116,7 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            if currIter % 100 == 0:
+            if currIter % 1 == 0:
                 self.plotMesh()
 
             resx, resy, alpha, beta, gamma = self.computeResidual()
@@ -161,7 +161,7 @@ class meshStruct:
 
         
         x_xixi[1:-1, :] = (self.meshXs[:-2, :] - 2 * self.meshXs[1:-1, :] + self.meshXs[2:, :])
-        x_xixi[0, :] = (self.meshXs[-1, :] - 2 * self.meshXs[0, :] + self.meshXs[1, :])
+        x_xixi[0, :] = (self.meshXs[1, :] - 2 * self.meshXs[0, :] + self.meshXs[-1, :])
         x_xixi[-1, :] = x_xixi[0, :]
 
         x_xieta[:, :] = (x_xi[:, 2:] - x_xi[:, :-2]) / 2
@@ -174,7 +174,7 @@ class meshStruct:
         y_xi[-1, :] = y_xi[0, :]
         
         y_xixi[1:-1, :] = (self.meshYs[:-2, :] - 2 * self.meshYs[1:-1, :] + self.meshYs[2:, :])
-        y_xixi[0, :] = (self.meshYs[-1, :] - 2 * self.meshYs[0, :] + self.meshYs[1, :])
+        y_xixi[0, :] = (self.meshYs[1, :] - 2 * self.meshYs[0, :] + self.meshYs[-1, :])
         y_xixi[-1, :] = y_xixi[0, :]
 
         y_xieta[:, :] = (y_xi[:, 2:] - y_xi[:, :-2]) / 2

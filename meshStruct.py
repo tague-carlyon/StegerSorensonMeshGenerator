@@ -116,7 +116,7 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            if currIter % 100 == 0:
+            if currIter % 2 == 0:
                 self.plotMesh()
 
             resx, resy, alpha, beta, gamma = self.computeResidual()
@@ -185,8 +185,14 @@ class meshStruct:
 
         match self.params.gridGenType:
             case 'Steger-Sorenson':
-                y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
-                x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                yOnes = np.ones(self.jMax)
+                print("Shape of yOnes:", yOnes.shape)
+                xOnes = np.ones(self.jMax)
+                yOnes[:self.jLE-1] = -1.0
+                xOnes[self.jLE-1:] = -1.0
+
+                y_eta[:, 0] = yOnes * np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
+                x_eta[:, 0] = xOnes * np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
 
                 x_ee[:, 0] = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta[:, 0]
                 y_ee[:, 0] = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta[:, 0]
@@ -209,11 +215,11 @@ class meshStruct:
                 expb = np.exp(-self.etas[:, 1:-1])
                 J = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
-                Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
-                Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
+                Rx = -(alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0]) / (J[:, 0] ** 2)
+                Ry = -(alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0]) / (J[:, 0] ** 2)
                 # P0 and Q0 are defined at the wall of the airfoil
-                P0 = J[:, 0] * (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry)
-                Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
+                P0 = (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry) / J[:, 0]
+                Q0 = (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / J[:, 0]
 
                 for i in range(0, self.jMax):
                     phi[i, :] = P0[i] * expa[i, :]

@@ -108,8 +108,8 @@ class meshStruct:
         """
         Res = self.params.convCriteria + 1.0
 
-        dx = np.zeros((self.jMax-2, self.kMax-2))
-        dy = np.zeros((self.jMax-2, self.kMax-2))
+        dx = np.zeros((self.jMax, self.kMax-2))
+        dy = np.zeros((self.jMax, self.kMax-2))
 
         currIter = 0
 
@@ -131,8 +131,8 @@ class meshStruct:
                     dy = -resy/(-2 * alpha - 2 * gamma)
             
             # update the mesh
-            self.meshXs[1:-1, 1:-1] += dx
-            self.meshYs[1:-1, 1:-1] += dy
+            self.meshXs[:, 1:-1] += dx
+            self.meshYs[:, 1:-1] += dy
 
 
     def computeResidual(self):

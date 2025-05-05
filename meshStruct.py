@@ -225,7 +225,6 @@ class meshStruct:
                 
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
                         J ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta)
-                print("Shape of resx:", resx.shape)
 
         return resx, resy, alpha, beta, gamma
 

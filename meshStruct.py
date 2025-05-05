@@ -171,8 +171,8 @@ class meshStruct:
                 y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
                 x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
 
-                x_ee[:, 0] = 0.5 * (7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[2:, 2]) - 3 * x_eta[:, 0]
-                y_ee[:, 0] = 0.5 * (7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[2:, 2]) - 3 * y_eta[:, 0]
+                x_ee[:, 0] = 0.5 * (7 * self.meshXs[1:-1, 0] + 8 * self.meshXs[1:-1, 1] - self.meshXs[1:-1, 2]) - 3 * x_eta[:, 0]
+                y_ee[:, 0] = 0.5 * (7 * self.meshYs[1:-1, 0] + 8 * self.meshYs[1:-1, 1] - self.meshYs[1:-1, 2]) - 3 * y_eta[:, 0]
 
         alpha = x_eta**2 + y_eta**2 
 

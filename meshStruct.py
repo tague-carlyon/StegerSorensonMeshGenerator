@@ -24,16 +24,19 @@ class meshStruct:
         self.kMax = params.kMax
         self.jLE = params.jLE
         self.jTE = params.jTE
-        #                       xi       , eta
-        self.meshXs = np.zeros((self.jMax, self.kMax))
-        self.meshYs = np.zeros((self.jMax, self.kMax))
         self.xSF = params.xSF
         self.ySF = params.ySF
         self.dxdy = params.dxdy
-        self.ds = 0.004
+        self.ds = params.ds
         self.gridType = params.gridType
+        
+        #                       xi       , eta
+        self.meshXs = np.zeros((self.jMax, self.kMax))
+        self.meshYs = np.zeros((self.jMax, self.kMax))
+        
         self.etas = np.zeros((self.jMax, self.kMax))
         self.xis = np.zeros((self.jMax, self.kMax))
+
         for i in range(self.jMax):
             self.etas[i, :] = np.linspace(0, self.kMax-1, self.kMax)
         for i in range(self.kMax):

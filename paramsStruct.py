@@ -1,60 +1,34 @@
 # Parameters structure
 # Edit values here
 class paramsStruct:
-    def __init__(self):
+    def __init__(self, **kwargs):
         ## GEOMETRY AND BOUNDARY CONDITIONS
-        # freestream Mach number
-        self.Minf = 0.8
-        # boolean whether upper boundary is wall or freestream
-        # 1:  wall boundary
-        # 0:  free stream
-        self.isWall = 0
-        # airfoil thickness
-        self.th = 0.10
-        # foil profile
-        # options are 'NACA0010', 'BICONVEX'
-        self.foil = 'NACA0010'
+        self.Minf = kwargs.get('Minf', 0.8)
+        self.isWall = kwargs.get('isWall', 0)
+        self.foil = kwargs.get('foil', 'NACA0010')
 
         ## FLUID PARAMETERS
-        # gas constant
-        # self.gamma = 1.4 for regular air
-        # self.gamma = 1 for lsd
-        self.gamma = 1.4
+        self.gamma = kwargs.get('gamma', 1.4)
         
         ## MESH PARAMETERS
-        # number of equally spaced grid points on all sides of airfoil
-        self.kConst = 3
-        # total grid points in x direction
-        self.jMax = 217
-        # total grid points in y direction
-        self.kMax = 71
-        # index at start of airfoil
-        self.jLE = 109
-        # index at end of airfoil
-        self.jTE = 73
-        # stretching factor in x direction
-        self.xSF = 1.12
-        # stretching factor in y direction (depends on type of upper BC)
-        self.ySF = 1.12 if self.isWall==0 else 1.0
-        # grid ratio at airfoil surface
-        self.dxdy = 1.0
-        self.gridType = 'O'
-        # grid generation type 
-        # options are 'TTM' (Thompson, Thames, Mastin), 'LSD' (linear stretching), 'UDM' (uniform)
-        # 'Steger-Sorenson'
-        self.gridGenType = 'Steger-Sorenson'
+        self.kConst = kwargs.get('kConst', 3)
+        self.ds = kwargs.get('ds', 0.004)
+        self.jMax = kwargs.get('jMax', 217)
+        self.kMax = kwargs.get('kMax', 71)
+        self.jLE = kwargs.get('jLE', 109)
+        self.jTE = kwargs.get('jTE', 73)
+        self.xSF = kwargs.get('xSF', 1.12)
+        self.ySF = kwargs.get('ySF', 1.12 if self.isWall == 0 else 1.0)
+        self.dxdy = kwargs.get('dxdy', 1.0)
+        self.gridType = kwargs.get('gridType', 'O')
+        self.gridGenType = kwargs.get('gridGenType', 'Steger-Sorenson')
 
         ## RELAXATION PARAMETERS
-        # relaxation method
-        # oprions are 'PJ', 'GS', 'SLOR', 'ADI'
-        self.method = 'PJ'
-        # SLOR relaxation parameter
-        self.wSLOR = 1.89
-        # maximum number of iterations
-        self.iterMax = 1000
-        # ratio of current to initial residual L2 norm at convergence
-        self.convCriteria = 0.001
-    
+        self.method = kwargs.get('method', 'PJ')
+        self.wSLOR = kwargs.get('wSLOR', 1.89)
+        self.iterMax = kwargs.get('iterMax', 1000)
+        self.convCriteria = kwargs.get('convCriteria', 0.001)
+
     @classmethod
-    def create(cls):
-        return cls()
+    def create(cls, **kwargs):
+        return cls(**kwargs)

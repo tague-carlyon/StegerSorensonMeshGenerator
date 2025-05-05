@@ -184,9 +184,6 @@ class meshStruct:
         y_ee = (self.meshYs[:, :-2] - 2 * self.meshYs[:, 1:-1] + self.meshYs[:, 2:])    
 
         match self.params.gridGenType:
-            case 'Elliptic':
-                x_eta = (self.meshXs[:, 2:] - self.meshXs[:, :-2]) / 2
-                y_eta = (self.meshYs[:, 2:] - self.meshYs[:, :-2]) / 2
             case 'Steger-Sorenson':
                 #y_eta[:, 0] = np.sign(y_eta[:, 0]) * np.abs(self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
                 #x_eta[:, 0] = np.sign(x_eta[:, 0]) * np.abs(self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))

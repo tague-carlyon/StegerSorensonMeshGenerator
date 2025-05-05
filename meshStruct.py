@@ -224,10 +224,10 @@ class meshStruct:
 
                 # calculate the residuals
                 resx = (alpha * x_xixi[:, 1:-1] - 2 * beta * x_xieta + gamma * x_ee) + \
-                        J ** 2 * (phi * x_xi[:, 1:-1] + psi * y_xi[:, 1:-1])
+                        J ** 2 * (phi * x_xi[:, 1:-1] + psi * x_eta[:, 1:-1])
                 
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
-                        J ** 2 * (phi * y_xi[:, 1:-1] + psi * x_xi[:, 1:-1])
+                        J ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta[:, 1:-1])
                 print("Shape of resx:", resx.shape)
 
         return resx, resy, alpha, beta, gamma

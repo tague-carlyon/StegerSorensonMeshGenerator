@@ -196,20 +196,20 @@ class meshStruct:
 
         alpha = x_eta**2 + y_eta**2 
 
-        beta = x_xi * x_eta + y_xi * y_eta
+        beta = x_xi[:, 1:-1] * x_eta + y_xi[:, 1:-1] * y_eta
         
-        gamma = x_xi**2 + y_xi**2
+        gamma = x_xi[:, 1:-1]**2 + y_xi[:, 1:-1]**2
 
         match self.params.gridGenType:
             case 'Elliptic':
-                resx = (alpha * x_xixi + beta * x_xieta + gamma * x_ee)
-                resy = (alpha * y_xixi + beta * y_xieta + gamma * y_ee)
+                resx = (alpha * x_xixi[:, 1:-1] + beta * x_xieta + gamma * x_ee)
+                resy = (alpha * y_xixi[:, 1:-1] + beta * y_xieta + gamma * y_ee)
 
             case 'Steger-Sorenson':
                 
                 expa = np.exp(-self.etas[1:-1, 1:-1])
                 expb = np.exp(-self.etas[1:-1, 1:-1])
-                J = x_xi * y_eta - x_eta * y_xi
+                J = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
                 Ry = -J[:, 0] ** 2 * (alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0])
@@ -222,8 +222,11 @@ class meshStruct:
                     psi[i, :] = Q0[i] * expb[i, :]
 
                 # calculate the residuals
-                resx = (alpha * x_xixi - 2 * beta * x_xieta + gamma * x_ee) + J ** 2 * (phi * x_xi + psi * y_xi)
-                resy = (alpha * y_xixi - 2 * beta * y_xieta + gamma * y_ee) + J ** 2 * (phi * y_xi + psi * x_xi)
+                resx = (alpha * x_xixi[:, 1:-1] - 2 * beta * x_xieta + gamma * x_ee) + \
+                        J ** 2 * (phi * x_xi[:, 1:-1] + psi * y_xi[:, 1:-1])
+                
+                resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
+                        J ** 2 * (phi * y_xi[:, 1:-1] + psi * x_xi[:, 1:-1])
                 print("Shape of resx:", resx.shape)
 
         return resx, resy, alpha, beta, gamma

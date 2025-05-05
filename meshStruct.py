@@ -221,10 +221,10 @@ class meshStruct:
 
                 # calculate the residuals
                 resx = (alpha * x_xixi[:, 1:-1] - 2 * beta * x_xieta + gamma * x_ee) + \
-                        J ** 2 * (phi * x_xi[:, 1:-1] + psi * x_eta)
+                        Jinv ** 2 * (phi * x_xi[:, 1:-1] + psi * x_eta)
                 
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
-                        J ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta)
+                        Jinv ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta)
 
         return resx, resy, alpha, beta, gamma
 

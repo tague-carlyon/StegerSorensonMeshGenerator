@@ -155,10 +155,10 @@ class meshStruct:
         x_xieta = np.zeros((self.jMax, self.kMax-2))
         y_xieta = np.zeros((self.jMax, self.kMax-2))
 
+        # compute the derivatives for meshxs
         x_xi[1:-1, :] = (self.meshXs[2:, :] - self.meshXs[:-2, :]) / 2
         x_xi[0, :] = (self.meshXs[1, :] - self.meshXs[-1, :]) / 2
         x_xi[-1, :] = x_xi[0, :]
-
         
         x_xixi[1:-1, :] = (self.meshXs[:-2, :] - 2 * self.meshXs[1:-1, :] + self.meshXs[2:, :])
         x_xixi[0, :] = (self.meshXs[1, :] - 2 * self.meshXs[0, :] + self.meshXs[-1, :])
@@ -169,6 +169,7 @@ class meshStruct:
         x_eta = (self.meshXs[:, 2:] - self.meshXs[:, :-2]) / 2
         x_ee = (self.meshXs[:, :-2] - 2 * self.meshXs[:, 1:-1] + self.meshXs[:, 2:])    
 
+        # compute the derivatives for meshy
         y_xi[1:-1, :] = (self.meshYs[2:, :] - self.meshYs[:-2, :]) / 2
         y_xi[0, :] = (self.meshYs[1, :] - self.meshYs[-1, :]) / 2
         y_xi[-1, :] = y_xi[0, :]
@@ -207,8 +208,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-self.etas[1:-1, 1:-1])
-                expb = np.exp(-self.etas[1:-1, 1:-1])
+                expa = np.exp(-self.etas[:, 1:-1])
+                expb = np.exp(-self.etas[:, 1:-1])
                 J = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 Rx = -J[:, 0] ** 2 * (alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0])
@@ -217,7 +218,7 @@ class meshStruct:
                 P0 = J[:, 0] * (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry)
                 Q0 = J[:, 0] * (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry)
 
-                for i in range(0, self.jMax-2):
+                for i in range(0, self.jMax):
                     phi[i, :] = P0[i] * expa[i, :]
                     psi[i, :] = Q0[i] * expb[i, :]
 

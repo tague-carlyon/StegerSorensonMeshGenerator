@@ -123,8 +123,8 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            if currIter % 2 == 0:
-                self.plotMesh()
+            #if currIter % 100 == 0:
+            #    self.plotMesh()
 
             resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 
@@ -207,12 +207,12 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-self.etas[:, 1:-1])
-                expb = np.exp(-self.etas[:, 1:-1])
+                expa = np.exp(-0.8*self.etas[:, 1:-1])
+                expb = np.exp(-0.8*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
-                y_eta0 = np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2))
-                x_eta0 = -np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2))
+                y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
+                x_eta0 = self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
 
                 x_ee0 = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta0
                 y_ee0 = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta0

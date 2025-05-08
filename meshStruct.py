@@ -29,6 +29,7 @@ class meshStruct:
         self.dxdy = params.dxdy
         self.ds = params.ds
         self.gridType = params.gridType
+        self.StegerSorenOmega = params.StegerSorenOmega
         
         #                       xi       , eta
         self.meshXs = np.zeros((self.jMax, self.kMax))
@@ -116,13 +117,16 @@ class meshStruct:
 
         currIter = 0
 
+        oldP0=0
+        oldQ0=0
+
         while Res > self.params.convCriteria:
 
             currIter += 1
-            if currIter % 2 == 0:
-                self.plotMesh()
+            #if currIter % 2 == 0:
+            #    self.plotMesh()
 
-            resx, resy, alpha, beta, gamma = self.computeResidual()
+            resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 
             if currIter % 1000 == 0:
 
@@ -140,7 +144,9 @@ class meshStruct:
             self.meshYs[:, 1:-1] += dy
 
 
-    def computeResidual(self):
+    def computeResidual(self, oldP0=0, oldQ0=0):
+        P0=0
+        Q0=0
         
         phi = np.zeros((self.jMax, self.kMax-2))
         psi = np.zeros((self.jMax, self.kMax-2))
@@ -186,16 +192,7 @@ class meshStruct:
         y_xieta[:, :] = (y_xi[:, 2:] - y_xi[:, :-2]) / 2
 
         y_eta = (self.meshYs[:, 2:] - self.meshYs[:, :-2]) / 2
-        y_ee = (self.meshYs[:, :-2] - 2 * self.meshYs[:, 1:-1] + self.meshYs[:, 2:])    
-
-        match self.params.gridGenType:
-            case 'Steger-Sorenson':
-                y_eta[:, 0] = self.ds * np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
-                x_eta[:, 0] = - self.ds * np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0]**2 + y_xi[:, 0]**2))
-
-                x_ee[:, 0] = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta[:, 0]
-                y_ee[:, 0] = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta[:, 0]
-                
+        y_ee = (self.meshYs[:, :-2] - 2 * self.meshYs[:, 1:-1] + self.meshYs[:, 2:])
 
         alpha = x_eta**2 + y_eta**2 
 
@@ -214,11 +211,21 @@ class meshStruct:
                 expb = np.exp(-self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
-                Rx = -(alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee[:, 0]) / (Jinv[:, 0] ** 2)
-                Ry = -(alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee[:, 0]) / (Jinv[:, 0] ** 2)
+                y_eta0 = np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0] * x_xi[:, 0] + y_xi[:, 0] * y_xi[:, 0]))
+                x_eta0 = -np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0] * x_xi[:, 0] + y_xi[:, 0] * y_xi[:, 0]))
+
+                x_ee0 = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta0
+                y_ee0 = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta0
+
+                Rx = -(alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee0) / (Jinv[:, 0] ** 2)
+                Ry = -(alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee0) / (Jinv[:, 0] ** 2)
+
                 # P0 and Q0 are defined at the wall of the airfoil
-                P0 = (y_eta[:, 0] * Rx - x_eta[:, 0] * Ry) / Jinv[:, 0]
+                P0 = (y_eta0 * Rx - x_eta0 * Ry) / Jinv[:, 0]
                 Q0 = (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / Jinv[:, 0]
+
+                P0 = self.StegerSorenOmega * P0 + (1 - self.StegerSorenOmega) * oldP0
+                Q0 = self.StegerSorenOmega * Q0 + (1 - self.StegerSorenOmega) * oldQ0
 
                 for i in range(0, self.jMax):
                     phi[i, :] = P0[i] * expa[i, :]
@@ -231,7 +238,7 @@ class meshStruct:
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
                         Jinv ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta)
 
-        return resx, resy, alpha, beta, gamma
+        return resx, resy, alpha, beta, gamma, P0, Q0
 
     def plotMesh(self):
         """

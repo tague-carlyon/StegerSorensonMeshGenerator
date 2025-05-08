@@ -22,6 +22,7 @@ class paramsStruct:
         self.dxdy = kwargs.get('dxdy', 1.0)
         self.gridType = kwargs.get('gridType', 'O')
         self.gridGenType = kwargs.get('gridGenType', 'Steger-Sorenson')
+        self.StegerSorenOmega = kwargs.get('StegerSorenOmega', 0.02)
 
         ## RELAXATION PARAMETERS
         self.method = kwargs.get('method', 'PJ')

@@ -123,8 +123,8 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            #if currIter % 2 == 0:
-            #    self.plotMesh()
+            if currIter % 2 == 0:
+                self.plotMesh()
 
             resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 
@@ -211,8 +211,8 @@ class meshStruct:
                 expb = np.exp(-self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
-                y_eta0 = np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0] * x_xi[:, 0] + y_xi[:, 0] * y_xi[:, 0]))
-                x_eta0 = -np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0] * x_xi[:, 0] + y_xi[:, 0] * y_xi[:, 0]))
+                y_eta0 = np.abs(x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2))
+                x_eta0 = -np.abs(y_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2))
 
                 x_ee0 = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta0
                 y_ee0 = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta0
@@ -233,10 +233,10 @@ class meshStruct:
 
                 # calculate the residuals
                 resx = (alpha * x_xixi[:, 1:-1] - 2 * beta * x_xieta + gamma * x_ee) + \
-                        Jinv ** 2 * (phi * x_xi[:, 1:-1] + psi * x_eta)
+                        (Jinv ** 2) * (phi * x_xi[:, 1:-1] + psi * x_eta)
                 
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
-                        Jinv ** 2 * (phi * y_xi[:, 1:-1] + psi * y_eta)
+                        (Jinv ** 2) * (phi * y_xi[:, 1:-1] + psi * y_eta)
 
         return resx, resy, alpha, beta, gamma, P0, Q0
 

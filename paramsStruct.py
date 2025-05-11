@@ -28,7 +28,7 @@ class paramsStruct:
         self.method = kwargs.get('method', 'PJ')
         self.wSLOR = kwargs.get('wSLOR', 1.89)
         self.iterMax = kwargs.get('iterMax', 1000)
-        self.convCriteria = kwargs.get('convCriteria', 0.001)
+        self.convCriteria = kwargs.get('convCriteria', 0.000001)
 
     @classmethod
     def create(cls, **kwargs):

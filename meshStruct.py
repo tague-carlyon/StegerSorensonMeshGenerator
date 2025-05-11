@@ -128,9 +128,9 @@ class meshStruct:
 
             resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 
-            if currIter % 1000 == 0:
+            Res = round(np.linalg.norm(resx + resy, ord=2), 4)
 
-                Res = round(np.linalg.norm(resx + resy, ord=2), 4)
+            if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {Res}")
 
             match self.params.method:

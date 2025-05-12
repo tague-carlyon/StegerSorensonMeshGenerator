@@ -70,36 +70,8 @@ class meshStruct:
             js = np.linspace(0, self.jMax, self.jLE)
             # create x array for airfoil points with cosine spacing
             xs = 0.5-0.5*np.cos((js) / (self.jMax)*np.pi)
-            ys = np.zeros((2, self.jLE))
-            # create airfoil
-            if 'NACA' in self.foil and self.foil[4:6] == '00':
-                # constant needed for NACA 4-digit airfoil generation
-                xint = 1.0
-                # get the NACA thickness
-                th = float(self.params.foil[-2:])/100
-
-                # y locations of for the top of the airfoil
-                ys[0, :] = 5 * th * (0.2969 * np.sqrt(xs * xint) - \
-                            0.1260 * xs * xint - 0.3516 * (xs * xint)**2 + \
-                            0.2843 * (xs * xint)**3 - 0.1015 * (xs * xint)**4)
-                # y locations of for the bottom of the airfoil
-                ys[1, :] = -ys[0, :]
-                
-                # assign bottom of the airfoil to the mesh
-                self.meshXs[:self.jLE-1, 0] = xs[1:][::-1]
-                self.meshYs[:self.jLE-1, 0] = ys[1, 1:][::-1]
-                
-                # assign top of the airfoil to the mesh
-                self.meshXs[self.jLE:, 0] = xs[1:]
-                self.meshYs[self.jLE:, 0] = ys[0, 1:]
-                
-                # fix trailing edge of airfoil
-                self.meshYs[0, 0] = 0.0
-                self.meshYs[-1, 0] = 0.0
-                self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
-                self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
             
-            elif 'NACA' in self.foil and self.foil[4:6] != '00' and self.foil[4:6].isdigit():
+            if 'NACA' in self.foil and self.foil[4:].isdigit():
                 
                 # constant needed for NACA 4-digit airfoil generation
                 xint = 1.0
@@ -142,16 +114,24 @@ class meshStruct:
                 self.meshXs[self.jLE:, 0] = xu[1:]
                 self.meshYs[self.jLE:, 0] = yu[1:]
                 
-                # fix trailing edge of airfoil
-                self.meshYs[0, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[0, 0] - self.meshXs[2, 0])
-                self.meshYs[-1, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[-1, 0] - self.meshXs[-3, 0])
-                self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
-                self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
+                if self.foil[4] == '0':
+                    # fix trailing edge of airfoil
+                    self.meshYs[0, 0] = 0.0
+                    self.meshYs[-1, 0] = 0.0
+                    self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
+                    self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
 
-                self.meshXs[0, 0] = xu[-1]
-                self.meshXs[-1, 0] = xu[-1]
-                self.meshXs[1, 0] = (self.meshXs[0, 0] + self.meshXs[1, 0]) / 2
-                self.meshXs[-2, 0] = (self.meshXs[-1, 0] + self.meshXs[-2, 0]) / 2
+                else:
+                    # fix trailing edge of airfoil
+                    self.meshYs[0, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[0, 0] - self.meshXs[2, 0])
+                    self.meshYs[-1, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[-1, 0] - self.meshXs[-3, 0])
+                    self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
+                    self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
+
+                    self.meshXs[0, 0] = xu[-1]
+                    self.meshXs[-1, 0] = xu[-1]
+                    self.meshXs[1, 0] = (self.meshXs[0, 0] + self.meshXs[1, 0]) / 2
+                    self.meshXs[-2, 0] = (self.meshXs[-1, 0] + self.meshXs[-2, 0]) / 2
             else:
                 raise ValueError('Invalid airfoil type.')
 
@@ -227,7 +207,7 @@ class meshStruct:
 
             if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
-            if Res > 1 and currIter > 1000:
+            if Res > 10 and currIter > 1000:
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
                 print("Residual is too high, check the mesh generation parameters.")
                 self.plotMesh()
@@ -302,8 +282,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-0.8*self.etas[:, 1:-1])
-                expb = np.exp(-0.8*self.etas[:, 1:-1])
+                expa = np.exp(-1*self.etas[:, 1:-1])
+                expb = np.exp(-1*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)

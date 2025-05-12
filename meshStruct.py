@@ -112,17 +112,15 @@ class meshStruct:
                 ys[0, :] = y_c + yth * np.cos(theta)
                 ys[1, :] = y_c - yth * np.cos(theta)
 
-                xs[0, :] = xs - yth * np.sin(theta)
-                xs[1, :] = xs + yth * np.sin(theta)
-
-                # y locations of for the bottom of the airfoil
-                ys[1, :] = -ys[0, :]
+                xu = xs - yth * np.sin(theta)
+                xl = xs + yth * np.sin(theta)
                 
                 # assign bottom of the airfoil to the mesh
-                self.meshXs[:self.jLE-1, 0] = xs[1:][::-1]
+                self.meshXs[:self.jLE-1, 0] = xl[1:][::-1]
                 self.meshYs[:self.jLE-1, 0] = ys[1, 1:][::-1]
+
                 # assign top of the airfoil to the mesh
-                self.meshXs[self.jLE:, 0] = xs[1:]
+                self.meshXs[self.jLE:, 0] = xu[1:]
                 self.meshYs[self.jLE:, 0] = ys[0, 1:]
                 
                 # fix trailing edge of airfoil

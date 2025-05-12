@@ -1,7 +1,7 @@
 from meshStruct import meshStruct
 from paramsStruct import paramsStruct
 
-params = paramsStruct.create(foil='NACA2412', gridGenType='Steger-Sorenson', stegerSorenOmega=0.5, debug=False)
+params = paramsStruct.create(foil='NACA0012', gridGenType='Steger-Sorenson', stegerSorenOmega=0.2, debug=False)
 mesh = meshStruct.create(params)
 mesh.assignInternalConditions()
 mesh.linearStretchMeshToWall()

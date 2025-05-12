@@ -19,7 +19,17 @@ class meshStruct:
                            data for the mesh structure. This may include parameters 
                            such as mesh size, dimensions, or other relevant settings.
         """
-        self.params = params
+        ## GEOMETRY AND BOUNDARY CONDITIONS
+        self.Minf = params.Minf
+        self.isWall = params.isWall
+        self.foil = params.foil
+
+        ## FLUID PARAMETERS
+        self.gamma = params.gamma
+        
+        ## MESH PARAMETERS
+        self.kConst = params.kConst
+        self.ds = params.ds
         self.jMax = params.jMax
         self.kMax = params.kMax
         self.jLE = params.jLE
@@ -27,10 +37,19 @@ class meshStruct:
         self.xSF = params.xSF
         self.ySF = params.ySF
         self.dxdy = params.dxdy
-        self.ds = params.ds
         self.gridType = params.gridType
+        self.gridGenType = params.gridGenType
         self.StegerSorenOmega = params.StegerSorenOmega
-        
+
+        ## RELAXATION PARAMETERS
+        self.method = params.method
+        self.wSLOR = params.wSLOR
+        self.iterMax = params.iterMax
+        self.convCriteria = params.convCriteria
+
+        ## OUTPUT PARAMETERS
+        self.debug = params.debug
+               
         #                       xi       , eta
         self.meshXs = np.zeros((self.jMax, self.kMax))
         self.meshYs = np.zeros((self.jMax, self.kMax))
@@ -53,7 +72,7 @@ class meshStruct:
             xs = 0.5-0.5*np.cos((js) / (self.jMax)*np.pi)
             ys = np.zeros((2, self.jLE))
             # create airfoil
-            if 'NACA' in self.params.foil and self.params.foil[4:6] == '00':
+            if 'NACA' in self.foil and self.foil[4:6] == '00':
                 # constant needed for NACA 4-digit airfoil generation
                 xint = 1.0
                 # get the NACA thickness
@@ -80,15 +99,15 @@ class meshStruct:
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
             
-            elif 'NACA' in self.params.foil and self.params.foil[4:6] != '00' and self.params.foil[4:6].isdigit():
+            elif 'NACA' in self.foil and self.foil[4:6] != '00' and self.foil[4:6].isdigit():
                 
                 # constant needed for NACA 4-digit airfoil generation
                 xint = 1.0
                 # get the NACA thickness
-                th = float(self.params.foil[-2:]) / 100
+                th = float(self.foil[-2:]) / 100
                 
-                maxCamb = float(self.params.foil[4]) / 100
-                positionMaxCamb = float(self.params.foil[5]) / 10
+                maxCamb = float(self.foil[4]) / 100
+                positionMaxCamb = float(self.foil[5]) / 10
 
                 # Find the x indexes in xs that are closest to positionMaxCamb
                 idxMaxCamb = np.argmin(np.abs(xs - positionMaxCamb))
@@ -183,8 +202,9 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            if currIter % 10 == 0:
-                self.plotMesh()
+            if self.debug:
+                if currIter % 10 == 0:
+                    self.plotMesh()
 
             resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 
@@ -267,8 +287,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-0.8*self.etas[:, 1:-1])
-                expb = np.exp(-0.8*self.etas[:, 1:-1])
+                expa = np.exp(-2*self.etas[:, 1:-1])
+                expb = np.exp(-2*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)

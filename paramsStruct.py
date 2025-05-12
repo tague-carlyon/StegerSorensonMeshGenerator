@@ -30,6 +30,9 @@ class paramsStruct:
         self.iterMax = kwargs.get('iterMax', 1000)
         self.convCriteria = kwargs.get('convCriteria', 0.000001)
 
+        ## OUTPUT PARAMETERS
+        self.debug = kwargs.get('debug', False)
+
     @classmethod
     def create(cls, **kwargs):
         return cls(**kwargs)

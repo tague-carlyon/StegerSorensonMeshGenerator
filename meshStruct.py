@@ -50,7 +50,7 @@ class meshStruct:
         if self.gridType == 'O':
             js = np.linspace(0, self.jMax, self.jLE)
             # create x array for airfoil points with cosine spacing
-            xs = 0.5-0.5*np.cos((js-1) / (self.jMax-1)*np.pi)
+            xs = 0.5-0.5*np.cos((js) / (self.jMax)*np.pi)
             ys = np.zeros((2, self.jLE))
             # create airfoil
             if 'NACA' in self.params.foil and self.params.foil[4:6] == '00':
@@ -69,6 +69,7 @@ class meshStruct:
                 # assign bottom of the airfoil to the mesh
                 self.meshXs[:self.jLE-1, 0] = xs[1:][::-1]
                 self.meshYs[:self.jLE-1, 0] = ys[1, 1:][::-1]
+                
                 # assign top of the airfoil to the mesh
                 self.meshXs[self.jLE:, 0] = xs[1:]
                 self.meshYs[self.jLE:, 0] = ys[0, 1:]
@@ -101,6 +102,9 @@ class meshStruct:
 
                 gradient = np.concatenate((gradientFront, gradientBack))
                 y_c = np.concatenate((y_cFront, y_cBack))
+                print(f"Length of y_c: {len(y_c)}")
+                print(f"Length of gradient: {len(gradient)}")
+                print(f"Length of xs: {len(xs)}")
 
                 # y locations of for the top of the airfoil
                 yth = 5 * th * (0.2969 * np.sqrt(xs * xint) - \
@@ -109,25 +113,30 @@ class meshStruct:
                 
                 theta = np.arctan(gradient)
                 
-                ys[0, :] = y_c + yth * np.cos(theta)
-                ys[1, :] = y_c - yth * np.cos(theta)
+                yu = y_c + yth * np.cos(theta)
+                yl = y_c - yth * np.cos(theta)
 
                 xu = xs - yth * np.sin(theta)
                 xl = xs + yth * np.sin(theta)
                 
                 # assign bottom of the airfoil to the mesh
                 self.meshXs[:self.jLE-1, 0] = xl[1:][::-1]
-                self.meshYs[:self.jLE-1, 0] = ys[1, 1:][::-1]
+                self.meshYs[:self.jLE-1, 0] = yl[1:][::-1]
 
                 # assign top of the airfoil to the mesh
                 self.meshXs[self.jLE:, 0] = xu[1:]
-                self.meshYs[self.jLE:, 0] = ys[0, 1:]
+                self.meshYs[self.jLE:, 0] = yu[1:]
                 
                 # fix trailing edge of airfoil
-                self.meshYs[0, 0] = 0.0
-                self.meshYs[-1, 0] = 0.0
+                self.meshYs[0, 0] = y_c[-1]
+                self.meshYs[-1, 0] = y_c[-1]
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
+
+                self.meshXs[0, 0] = xu[-1]
+                self.meshXs[-1, 0] = xu[-1]
+                #self.meshXs[1, 0] = 0.5 * (self.meshXs[1, 0] + 0.25 * (self.meshXs[2, 0] + self.meshXs[0, 0]))
+                #self.meshXs[-2, 0] = 0.5 * (self.meshXs[self.jMax-2, 0] + 0.25 * (self.meshXs[self.jMax-1, 0] + self.meshXs[self.jMax-3, 0]))
 
             else:
                 raise ValueError('Invalid airfoil type.')
@@ -174,8 +183,8 @@ class meshStruct:
         while Res > self.params.convCriteria:
 
             currIter += 1
-            #if currIter % 100 == 0:
-            #    self.plotMesh()
+            if currIter % 10 == 0:
+                self.plotMesh()
 
             resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
 

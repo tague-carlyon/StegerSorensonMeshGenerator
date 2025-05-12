@@ -206,9 +206,9 @@ class meshStruct:
 
 
             if currIter % 1000 == 0:                
-                print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
+                print(f"Iteration {currIter} Residual for meshGen: {round(Res, 7)}")
             if Res > 10 and currIter > 2:
-                print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
+                print(f"Iteration {currIter} Residual for meshGen: {round(Res, 7)}")
                 print("Residual is too high, check the mesh generation parameters.")
                 self.plotMesh()
 

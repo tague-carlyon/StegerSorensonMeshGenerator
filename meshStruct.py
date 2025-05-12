@@ -80,7 +80,7 @@ class meshStruct:
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
             
-            if 'NACA' in self.params.foil and self.params.foil[4:6] != '00' and self.params.foil[4:6].isdigit():
+            elif 'NACA' in self.params.foil and self.params.foil[4:6] != '00' and self.params.foil[4:6].isdigit():
                 
                 # constant needed for NACA 4-digit airfoil generation
                 xint = 1.0

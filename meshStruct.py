@@ -111,7 +111,6 @@ class meshStruct:
 
                 # Find the x indexes in xs that are closest to positionMaxCamb
                 idxMaxCamb = np.argmin(np.abs(xs - positionMaxCamb))
-                print(f"Index of maximum camber position: {idxMaxCamb}")
 
                 y_cFront = maxCamb / positionMaxCamb**2 * (2 * positionMaxCamb * xs[:idxMaxCamb] - xs[:idxMaxCamb]**2)
                 y_cBack = maxCamb / (1 - positionMaxCamb)**2 * (1 - 2 * positionMaxCamb + 2 * positionMaxCamb * xs[idxMaxCamb:] - xs[idxMaxCamb:]**2)
@@ -121,9 +120,6 @@ class meshStruct:
 
                 gradient = np.concatenate((gradientFront, gradientBack))
                 y_c = np.concatenate((y_cFront, y_cBack))
-                print(f"Length of y_c: {len(y_c)}")
-                print(f"Length of gradient: {len(gradient)}")
-                print(f"Length of xs: {len(xs)}")
 
                 # y locations of for the top of the airfoil
                 yth = 5 * th * (0.2969 * np.sqrt(xs * xint) - \

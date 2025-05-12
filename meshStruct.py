@@ -143,8 +143,8 @@ class meshStruct:
                 self.meshYs[self.jLE:, 0] = yu[1:]
                 
                 # fix trailing edge of airfoil
-                self.meshYs[0, 0] = y_c[-1]
-                self.meshYs[-1, 0] = y_c[-1]
+                self.meshYs[0, 0] = y_c[-1] + gradient[-1] * (self.meshXs[0, 0] - self.meshXs[2, 0])
+                self.meshYs[-1, 0] = y_c[-1] + gradient[-1] * (self.meshXs[-1, 0] - self.meshXs[-3, 0])
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
 
@@ -283,8 +283,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-2*self.etas[:, 1:-1])
-                expb = np.exp(-2*self.etas[:, 1:-1])
+                expa = np.exp(-1*self.etas[:, 1:-1])
+                expb = np.exp(-1*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)

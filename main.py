@@ -5,6 +5,6 @@ params = paramsStruct.create(foil='NACA6412', gridGenType='Steger-Sorenson', ste
 mesh = meshStruct.create(params)
 mesh.assignInternalConditions()
 mesh.linearStretchMeshToWall()
-mesh.plotMesh()
+#mesh.plotMesh()
 mesh.relaxMesh()
 mesh.plotMesh()

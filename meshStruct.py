@@ -189,7 +189,7 @@ class meshStruct:
         """
         Relaxes the mesh structure.
         """
-        Res = self.params.convCriteria + 1.0
+        Res = self.convCriteria + 1.0
 
         dx = np.zeros((self.jMax, self.kMax-2))
         dy = np.zeros((self.jMax, self.kMax-2))
@@ -199,7 +199,7 @@ class meshStruct:
         oldP0=0
         oldQ0=0
 
-        while Res > self.params.convCriteria:
+        while Res > self.convCriteria:
 
             currIter += 1
             if self.debug:
@@ -213,7 +213,7 @@ class meshStruct:
             if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {Res}")
 
-            match self.params.method:
+            match self.method:
                 case 'PJ':
                     # calculate the relaxation factors
                     dx = -resx/(-2 * alpha - 2 * gamma)
@@ -280,7 +280,7 @@ class meshStruct:
         
         gamma = x_xi[:, 1:-1]**2 + y_xi[:, 1:-1]**2
 
-        match self.params.gridGenType:
+        match self.gridGenType:
             case 'Elliptic':
                 resx = (alpha * x_xixi[:, 1:-1] + beta * x_xieta + gamma * x_ee)
                 resy = (alpha * y_xixi[:, 1:-1] + beta * y_xieta + gamma * y_ee)

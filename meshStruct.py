@@ -81,6 +81,11 @@ class meshStruct:
                 maxCamb = float(self.foil[4]) / 100
                 positionMaxCamb = float(self.foil[5]) / 10
 
+                if maxCamb != 0 and positionMaxCamb == 0:
+                    raise ValueError("Position of maximum camber (positionMaxCamb) cannot be zero if camber (maxCamb) is not zero.")
+                elif maxCamb == 0:
+                    positionMaxCamb = 1
+
                 # Find the x indexes in xs that are closest to positionMaxCamb
                 idxMaxCamb = np.argmin(np.abs(xs - positionMaxCamb))
 

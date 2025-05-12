@@ -79,29 +79,42 @@ class meshStruct:
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
             
-            if 'NACA' in self.params.foil and self.params.foil[4:6] != '00':
+            if 'NACA' in self.params.foil and self.params.foil[4:6] != '00' and self.params.foil[4:6].isdigit():
+                
                 # constant needed for NACA 4-digit airfoil generation
                 xint = 1.0
                 # get the NACA thickness
-                th = float(self.params.foil[-2:])/100
+                th = float(self.params.foil[-2:]) / 100
                 
-                maxCamb = float(self.params.foil[4])/100
-                positionMaxCamb = float(self.params.foil[5])/10
+                maxCamb = float(self.params.foil[4]) / 100
+                positionMaxCamb = float(self.params.foil[5]) / 10
 
                 # Find the x indexes in xs that are closest to positionMaxCamb
                 idxMaxCamb = np.argmin(np.abs(xs - positionMaxCamb))
                 print(f"Index of maximum camber position: {idxMaxCamb}")
 
-                y_cFront = maxCamb / positionMaxCamb**2 * (2 * positionMaxCamb * xs - xs**2)
-                y_cBack = maxCamb / (1 - positionMaxCamb)**2 * (1 - 2 * positionMaxCamb + 2 * positionMaxCamb * xs - xs**2)
+                y_cFront = maxCamb / positionMaxCamb**2 * (2 * positionMaxCamb * xs[:idxMaxCamb] - xs[:idxMaxCamb]**2)
+                y_cBack = maxCamb / (1 - positionMaxCamb)**2 * (1 - 2 * positionMaxCamb + 2 * positionMaxCamb * xs[idxMaxCamb:] - xs[idxMaxCamb:]**2)
 
-                gradientFront = 2 * maxCamb / positionMaxCamb**2 * (positionMaxCamb - xs)
-                gradientBack = 2 * maxCamb / (1 - positionMaxCamb)**2 * (positionMaxCamb - xs)
+                gradientFront = 2 * maxCamb / positionMaxCamb**2 * (positionMaxCamb - xs[:idxMaxCamb])
+                gradientBack = 2 * maxCamb / (1 - positionMaxCamb)**2 * (positionMaxCamb - xs[idxMaxCamb:])
 
-                                # y locations of for the top of the airfoil
-                ys[0, :] = 5 * th * (0.2969 * np.sqrt(xs * xint) - \
+                gradient = np.concatenate((gradientFront, gradientBack))
+                y_c = np.concatenate((y_cFront, y_cBack))
+
+                # y locations of for the top of the airfoil
+                yth = 5 * th * (0.2969 * np.sqrt(xs * xint) - \
                             0.1260 * xs * xint - 0.3516 * (xs * xint)**2 + \
                             0.2843 * (xs * xint)**3 - 0.1015 * (xs * xint)**4)
+                
+                theta = np.arctan(gradient)
+                
+                ys[0, :] = y_c + yth * np.cos(theta)
+                ys[1, :] = y_c - yth * np.cos(theta)
+
+                xs[0, :] = xs - yth * np.sin(theta)
+                xs[1, :] = xs + yth * np.sin(theta)
+
                 # y locations of for the bottom of the airfoil
                 ys[1, :] = -ys[0, :]
                 

@@ -207,7 +207,7 @@ class meshStruct:
 
             if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
-            if Res > 10 and currIter > 1000:
+            if Res > 10 and currIter > 2:
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
                 print("Residual is too high, check the mesh generation parameters.")
                 self.plotMesh()
@@ -282,8 +282,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-0.5*self.etas[:, 1:-1])
-                expb = np.exp(-0.5*self.etas[:, 1:-1])
+                expa = np.exp(-1*self.etas[:, 1:-1])
+                expb = np.exp(-1*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)

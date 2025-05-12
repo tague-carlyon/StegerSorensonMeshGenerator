@@ -143,16 +143,15 @@ class meshStruct:
                 self.meshYs[self.jLE:, 0] = yu[1:]
                 
                 # fix trailing edge of airfoil
-                self.meshYs[0, 0] = y_c[-1] + gradient[-1] * (self.meshXs[0, 0] - self.meshXs[2, 0])
-                self.meshYs[-1, 0] = y_c[-1] + gradient[-1] * (self.meshXs[-1, 0] - self.meshXs[-3, 0])
+                self.meshYs[0, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[0, 0] - self.meshXs[2, 0])
+                self.meshYs[-1, 0] = y_c[-1] #+ gradient[-1] * (self.meshXs[-1, 0] - self.meshXs[-3, 0])
                 self.meshYs[1, 0] = 0.5*(self.meshYs[1, 0] + 0.25 * (self.meshYs[2, 0] + self.meshYs[0, 0]))
                 self.meshYs[-2, 0] = 0.5*(self.meshYs[self.jMax-2, 0] + 0.25 * (self.meshYs[self.jMax-1, 0] + self.meshYs[self.jMax-3, 0]))
 
                 self.meshXs[0, 0] = xu[-1]
                 self.meshXs[-1, 0] = xu[-1]
-                #self.meshXs[1, 0] = 0.5 * (self.meshXs[1, 0] + 0.25 * (self.meshXs[2, 0] + self.meshXs[0, 0]))
-                #self.meshXs[-2, 0] = 0.5 * (self.meshXs[self.jMax-2, 0] + 0.25 * (self.meshXs[self.jMax-1, 0] + self.meshXs[self.jMax-3, 0]))
-
+                self.meshXs[1, 0] = (self.meshXs[0, 0] + self.meshXs[1, 0]) / 2
+                self.meshXs[-2, 0] = (self.meshXs[-1, 0] + self.meshXs[-2, 0]) / 2
             else:
                 raise ValueError('Invalid airfoil type.')
 

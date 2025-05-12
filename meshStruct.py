@@ -227,11 +227,17 @@ class meshStruct:
 
             if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
-            
-            # update the mesh
-            self.meshXs[:, 1:-1] += dx
-            self.meshYs[:, 1:-1] += dy
+            if Res > 1 and currIter > 1000:
+                print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
+                print("Residual is too high, check the mesh generation parameters.")
+                self.plotMesh()
 
+            # update the mesh
+            self.meshXs[:-1, 1:-1] += dx[:-1, :]
+            self.meshYs[:-1, 1:-1] += dy[:-1, :]
+
+            self.meshXs[-1, 1:-1] = self.meshXs[0, 1:-1]
+            self.meshYs[-1, 1:-1] = self.meshYs[0, 1:-1]
 
     def computeResidual(self, oldP0=0, oldQ0=0):
         
@@ -296,8 +302,8 @@ class meshStruct:
 
             case 'Steger-Sorenson':
                 
-                expa = np.exp(-1*self.etas[:, 1:-1])
-                expb = np.exp(-1*self.etas[:, 1:-1])
+                expa = np.exp(-0.8*self.etas[:, 1:-1])
+                expb = np.exp(-0.8*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
                 y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)

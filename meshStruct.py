@@ -189,10 +189,10 @@ class meshStruct:
         dx = np.zeros((self.jMax, self.kMax-2))
         dy = np.zeros((self.jMax, self.kMax-2))
 
-        currIter = 0
-
         oldP0=0
         oldQ0=0
+
+        currIter = 0
 
         while Res > self.convCriteria:
 
@@ -201,18 +201,32 @@ class meshStruct:
                 if currIter % 10 == 0:
                     self.plotMesh()
 
-            resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
+            match self.gridGenType:
 
-            Res = np.linalg.norm(resx + resy, ord=2)
+                case 'Elliptic':
+                    match self.method:
+                        case 'PJ':
+                            resx, resy, alpha, beta, gamma = self.computeResidual()
+
+                            Res = np.linalg.norm(resx + resy, ord=2)
+                            
+                            # calculate dx and dy
+                            dx = -resx/(-2 * alpha - 2 * gamma)
+                            dy = -resy/(-2 * alpha - 2 * gamma)
+
+                case 'Steger-Sorenson':
+                    match self.method:
+                        case 'PJ':
+                            resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
+
+                            Res = np.linalg.norm(resx + resy, ord=2)
+
+                            dx = -resx/(-2 * alpha - 2 * gamma)
+                            dy = -resy/(-2 * alpha - 2 * gamma)
+
 
             if currIter % 1000 == 0:                
                 print(f"Iteration {currIter} Residual for meshGen: {round(Res, 6)}")
-
-            match self.method:
-                case 'PJ':
-                    # calculate the relaxation factors
-                    dx = -resx/(-2 * alpha - 2 * gamma)
-                    dy = -resy/(-2 * alpha - 2 * gamma)
             
             # update the mesh
             self.meshXs[:, 1:-1] += dx
@@ -220,8 +234,6 @@ class meshStruct:
 
 
     def computeResidual(self, oldP0=0, oldQ0=0):
-        P0=0
-        Q0=0
         
         phi = np.zeros((self.jMax, self.kMax-2))
         psi = np.zeros((self.jMax, self.kMax-2))
@@ -279,6 +291,8 @@ class meshStruct:
             case 'Elliptic':
                 resx = (alpha * x_xixi[:, 1:-1] + beta * x_xieta + gamma * x_ee)
                 resy = (alpha * y_xixi[:, 1:-1] + beta * y_xieta + gamma * y_ee)
+            
+                return resx, resy, alpha, beta, gamma
 
             case 'Steger-Sorenson':
                 
@@ -313,7 +327,7 @@ class meshStruct:
                 resy = (alpha * y_xixi[:, 1:-1] - 2 * beta * y_xieta + gamma * y_ee) + \
                         (Jinv ** 2) * (phi * y_xi[:, 1:-1] + psi * y_eta)
 
-        return resx, resy, alpha, beta, gamma, P0, Q0
+                return resx, resy, alpha, beta, gamma, P0, Q0
 
     def plotMesh(self):
         """

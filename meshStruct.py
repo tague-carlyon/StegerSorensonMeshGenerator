@@ -308,7 +308,7 @@ class meshStruct:
 
                 # P0 and Q0 are defined at the wall of the airfoil
                 P0 = (y_eta0 * Rx - x_eta0 * Ry) / Jinv[:, 0]
-                Q0 = 0*(y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / Jinv[:, 0]
+                Q0 = (0*y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / Jinv[:, 0]
 
                 P0 = self.StegerSorenOmega * P0 + (1 - self.StegerSorenOmega) * oldP0
                 Q0 = self.StegerSorenOmega * Q0 + (1 - self.StegerSorenOmega) * oldQ0

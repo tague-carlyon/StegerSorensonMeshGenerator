@@ -62,6 +62,9 @@ class meshStruct:
         for i in range(self.kMax):
             self.xis[:, i] = np.linspace(0, self.jMax-1, self.jMax)
         
+        self.assignInternalConditions()
+        self.linearStretchMeshToWall()
+        
     def assignInternalConditions(self):
         """
         Assigns boundary conditions to the mesh structure.
@@ -139,6 +142,7 @@ class meshStruct:
                     self.meshXs[-2, 0] = (self.meshXs[-1, 0] + self.meshXs[-2, 0]) / 2
             else:
                 raise ValueError('Invalid airfoil type.')
+            
 
     def linearStretchMeshToWall(self):
         """
@@ -202,7 +206,7 @@ class meshStruct:
                 case 'Steger-Sorenson':
                     match self.method:
                         case 'PJ':
-                            resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0, oldQ0)
+                            resx, resy, alpha, beta, gamma, oldP0, oldQ0 = self.computeResidual(oldP0=oldP0, oldQ0=oldQ0)
 
                             Res = np.linalg.norm(resx + resy, ord=2)
 
@@ -291,18 +295,20 @@ class meshStruct:
                 expb = np.exp(-1*self.etas[:, 1:-1])
                 Jinv = x_xi[:, 1:-1] * y_eta - x_eta * y_xi[:, 1:-1]
 
-                y_eta0 = self.ds * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
-                x_eta0 = self.ds * y_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
+                y_eta0 = 0.002 * x_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
+                x_eta0 = 0.002 * y_xi[:, 0] / np.sqrt(x_xi[:, 0] ** 2 + y_xi[:, 0] ** 2)
 
                 x_ee0 = 0.5 * (-7 * self.meshXs[:, 0] + 8 * self.meshXs[:, 1] - self.meshXs[:, 2]) - 3 * x_eta0
                 y_ee0 = 0.5 * (-7 * self.meshYs[:, 0] + 8 * self.meshYs[:, 1] - self.meshYs[:, 2]) - 3 * y_eta0
+
+                Jinv0 = x_xi[:, 0] * y_eta0 - x_eta0 * y_xi[:, 0]
 
                 Rx = -(alpha[:, 0] * x_xixi[:, 0] - 2 * beta[:, 0] * x_xieta[:, 0] + gamma[:, 0] * x_ee0) / (Jinv[:, 0] ** 2)
                 Ry = -(alpha[:, 0] * y_xixi[:, 0] - 2 * beta[:, 0] * y_xieta[:, 0] + gamma[:, 0] * y_ee0) / (Jinv[:, 0] ** 2)
 
                 # P0 and Q0 are defined at the wall of the airfoil
                 P0 = (y_eta0 * Rx - x_eta0 * Ry) / Jinv[:, 0]
-                Q0 = (y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / Jinv[:, 0]
+                Q0 = 0*(y_xi[:, 0] * Rx + x_xi[:, 0] * Ry) / Jinv[:, 0]
 
                 P0 = self.StegerSorenOmega * P0 + (1 - self.StegerSorenOmega) * oldP0
                 Q0 = self.StegerSorenOmega * Q0 + (1 - self.StegerSorenOmega) * oldQ0
